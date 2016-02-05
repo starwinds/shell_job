@@ -1,0 +1,12 @@
+# consumer configuration
+## http://user:passwrod@ip:port/gitdir
+source_banach_git_url= 
+source_consumer_git_url=
+kafka_topic=
+consumer_plugin=
+target_server_url=
+#ip:port
+zookeeper_ip=`ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`:2181
+consumer_group_id=
+JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64
+CONSUMER_HOME=/opt/watch_consumer

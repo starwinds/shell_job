@@ -10,3 +10,4 @@ zookeeper_ip=`ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}
 consumer_group_id=
 JAVA_HOME=/usr/lib/jvm/java-6-openjdk-amd64
 CONSUMER_HOME=/opt/watch_consumer
+KAFKA_HOME=/opt/kafka/kafka_2.8.0-0.8.1

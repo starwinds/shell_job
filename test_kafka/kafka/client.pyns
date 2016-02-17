@@ -1,0 +1,7 @@
+# PynSource Version 1.1
+{'type':'meta', 'info1':'Lorem ipsum dolor sit amet, consectetur adipiscing elit is latin.'}
+{'type':'umlshape', 'id':'KafkaClient', 'x':262, 'y':176, 'width':234, 'height':381, 'attrs':'CLIENT_ID|ID_GEN|bufsize|conns|brokers|topics_to_brokers|topic_partitions', 'meths':'__init__|_get_conn_for_broker|_get_leader_for_partition|_load_metadata_for_topics|_next_id|_send_broker_unaware_request|_send_broker_aware_request|close|send_produce_request|send_fetch_request|send_offset_request|send_offset_commit_request|send_offset_fetch_request'}
+{'type':'umlshape', 'id':'object', 'x':10, 'y':361, 'width':76, 'height':31, 'attrs':'', 'meths':''}
+{'type':'umlshape', 'id':'KafkaConnection', 'x':518, 'y':10, 'width':175, 'height':31, 'attrs':'', 'meths':''}
+{'type':'edge', 'id':'KafkaClient_to_object', 'source':'KafkaClient', 'target':'object', 'uml_edge_type':'generalisation'}
+{'type':'edge', 'id':'KafkaConnection_to_KafkaClient', 'source':'KafkaConnection', 'target':'KafkaClient', 'uml_edge_type':'composition'}

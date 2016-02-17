@@ -1,0 +1,103 @@
++------------------------+
+|         object         |
++------------------------+
+           .                                                                                                                                                                                                                                                         
+          /_\                                                                                                                                                                                                                                                        
+           |                                                          [ object ]                             [ object ]                                              [ object ]                                              [ object ]               [ object ]     
+           |                                                              .                                      .                                                       .                                                       .                        .          
+           |                                                             /_\                                    /_\                                                     /_\                                                     /_\                      /_\         
+           |                                                              |                                      |                                                       |                                                       |                        |          
+           |                                                              |                                      |                                                       |                                                       |                        |          
++------------------------+                                 +-------------------------------+       +-----------------------------+                                  +------------+                                        +----------------+       +----------------+
+|    KafkaConnection     |                                 |         KafkaProtocol         |       |        SimpleConsumer       |                                  | KafkaQueue |                                        | SimpleProducer |       | ReentrantTimer |
+|------------------------|                                 |-------------------------------|       |-----------------------------|                                  |------------|                                        |----------------|       +----------------+
+| host                   |  ---->  [ socket.socket ]       | PRODUCE_KEY                   |       | client                      |  ---->  [ Lock ]                 | in_queue   |  ---->  [ Event ]                      | client         |                         
+| port                   |                                 | FETCH_KEY                     |       | topic                       |  ---->  [ ReentrantTimer ]       | out_queue  |  ---->  [ KafkaProducerProcess ]       | topic          |                         
+| bufsize                |                                 | OFFSET_KEY                    |       | group                       |                                  | consumers  |  ---->  [ Queue ]                      | next_partition |                         
+| _sock                  |                                 | METADATA_KEY                  |       | offsets                     |                                  | barrier    |                                        |----------------|                         
+| data                   |                                 | OFFSET_COMMIT_KEY             |       | commit_lock                 |                                  | producer   |                                        | __init__       |                         
+|------------------------|                                 | OFFSET_FETCH_KEY              |       | commit_timer                |                                  |------------|                                        | send_messages  |                         
+| __init__               |                                 | ATTRIBUTE_CODEC_MASK          |       | count_since_commit          |                                  | __init__   |                                        +----------------+                         
+| __str__                |                                 | CODEC_NONE                    |       | auto_commit                 |                                  | get        |                                                                                   
+| _consume_response      |                                 | CODEC_GZIP                    |       | auto_commit_every_n         |                                  | put        |                                                                                   
+| _consume_response_iter |                                 | CODEC_SNAPPY                  |       | auto_commit_every_t         |                                  | close      |                                                                                   
+| send                   |                                 |-------------------------------|       |-----------------------------|                                  +------------+                                                                                   
+| recv                   |                                 | _encode_message_header        |       | __init__                    |                                                                                                                                   
+| close                  |                                 | _encode_message_set           |       | get_or_init_offset_callback |                                                                                                                                   
++------------------------+                                 | _encode_message               |       | seek                        |                                                                                                                                   
+                                                           | _decode_message_set_iter      |       | pending                     |                                                                                                                                   
+                                                           | _decode_message               |       | _timed_commit               |                                                                                                                                   
+                                                           | encode_produce_request        |       | commit                      |                                                                                                                                   
+                                                           | decode_produce_response       |       | _auto_commit                |                                                                                                                                   
+                                                           | encode_fetch_request          |       | __iter__                    |                                                                                                                                   
+                                                           | decode_fetch_response         |       | __iter_partition__          |                                                                                                                                   
+                                                           | encode_offset_request         |       +-----------------------------+                                                                                                                                   
+                                                           | decode_offset_response        |                                                                                                                                                                         
+                                                           | encode_metadata_request       |                                                                                                                                                                         
+                                                           | decode_metadata_response      |                                                                                                                                                                         
+                                                           | encode_offset_commit_request  |                                                                                                                                                                         
+                                                           | decode_offset_commit_response |                                                                                                                                                                         
+                                                           | encode_offset_fetch_request   |                                                                                                                                                                         
+                                                           | decode_offset_fetch_response  |                                                                                                                                                                         
+                                                           +-------------------------------+                                                                                                                                                                         
+                          
+                          
+                          
+                          
++------------------------+
+|        Process         |
++------------------------+
+           .                                                               
+          /_\                                                              
+           |                                            [ Process ]        
+           |                                                 .             
+           |                                                /_\            
+           |                                                 |             
+           |                                                 |             
++------------------------+                         +----------------------+
+|  KafkaProducerProcess  |                         | KafkaConsumerProcess |
+|------------------------|                         |----------------------|
+| client                 |  ---->  [ Timer ]       | client               |
+| topic                  |                         | topic                |
+| in_queue               |                         | partition            |
+| barrier                |                         | out_queue            |
+| producer_flush_buffer  |                         | barrier              |
+| producer_flush_timeout |                         | consumer_fetch_size  |
+| producer_timeout       |                         | consumer_sleep       |
+|------------------------|                         |----------------------|
+| __init__               |                         | __init__             |
+| __str__                |                         | __str__              |
+| run                    |                         | run                  |
+| flush                  |                         +----------------------+
++------------------------+                                                 
+                        
+                        
+                        
+                        
++----------------------+
+|      Exception       |
++----------------------+
+          .                                     
+         /_\                                    
+          |                     [ Exception ]   
+          |                           .         
+          |                          /_\        
+          |                           |         
+          |                           |         
++----------------------+       +---------------+
+| BufferUnderflowError |       | ChecksumError |
++----------------------+       +---------------+
+                                                
+                                                
+                                                
+                                                
++---------------+       +------+       +-------+
+| socket.socket |       | Lock |       | Queue |
++---------------+       +------+       +-------+
+                         
+                         
+                         
+                         
++-------+       +-------+
+| Event |       | Timer |
++-------+       +-------+
